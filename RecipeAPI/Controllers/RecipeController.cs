@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RecipeAPI.Entities;
 using RecipeAPI.Services;
@@ -7,6 +8,7 @@ namespace RecipeAPI.Controllers
 {
     [Route("[controller]s")]
     [ApiController]
+    [Authorize]
     public class RecipeController : ControllerBase
     {
         private readonly IRecipeRepo _recipeRepo;
