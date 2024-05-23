@@ -8,6 +8,8 @@ public class Recipe
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int id { get; set; }
+    [Required]
+    public string CreatedBy { get; set; }
 
     [Required]
     public string Title { get; set; }

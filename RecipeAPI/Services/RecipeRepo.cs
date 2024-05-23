@@ -2,6 +2,7 @@
 using RecipeAPI.DbContexts;
 using RecipeAPI.Entities;
 
+
 namespace RecipeAPI.Services;
 
 public class RecipeRepo : IRecipeRepo
@@ -20,6 +21,7 @@ public class RecipeRepo : IRecipeRepo
             {
                 return null;
             }
+            
             var result = await _recipeDBContext.Recipes.AddAsync(recipe);
             await _recipeDBContext.SaveChangesAsync();
             return result.Entity;
@@ -30,12 +32,18 @@ public class RecipeRepo : IRecipeRepo
         }
     }
 
-    public async Task<Recipe?> DeleteRecipeAsync(int id)
+    public async Task<Recipe?> DeleteRecipeAsync(int id, string email, string role)
     {
         try
         {
+            
             var recipe = await _recipeDBContext.Recipes.FindAsync(id);
+            
             if (recipe == null)
+            {
+                return null;
+            }
+            else if (recipe.CreatedBy != email && role != "Admin")
             {
                 return null;
             }
@@ -78,12 +86,29 @@ public class RecipeRepo : IRecipeRepo
         }
     }
 
+    public async Task<IEnumerable<Recipe>> GetUserRecipesAsync(string email)
+    {
+        try
+        {
+            var recipes = await (from recipe in _recipeDBContext.Recipes
+                                 where recipe.CreatedBy == email
+                                 select recipe).ToListAsync();
+            return recipes;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        throw new NotImplementedException();
+    }
+
     public async Task<Recipe?> UpdateRecipeAsync(int id, Recipe recipe)
     {
         try
         {
             var myRecipe = await _recipeDBContext.Recipes.FindAsync(id);
-            if (myRecipe == null)
+            if (myRecipe == null || myRecipe.CreatedBy != recipe.CreatedBy)
             {
                 return null;
             }

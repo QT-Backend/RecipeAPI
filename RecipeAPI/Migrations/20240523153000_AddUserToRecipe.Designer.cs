@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecipeAPI.DbContexts;
 
@@ -10,9 +11,11 @@ using RecipeAPI.DbContexts;
 namespace RecipeAPI.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
-    partial class RecipieDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240523153000_AddUserToRecipe")]
+    partial class AddUserToRecipe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

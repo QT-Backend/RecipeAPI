@@ -17,18 +17,18 @@ public class AccountController : ControllerBase
         return Ok("Log in at /login or /account/login endpoint to view recipes");
     }
 
-    // redirect routes for easy login / logout
-    [Route("/login")]
-    public IActionResult RedirectToLogin()
-    {
-        return RedirectToAction("Login", "Account");
-    }
+    //// redirect routes for easy login / logout
+    //[Route("/login")]
+    //public IActionResult RedirectToLogin()
+    //{
+    //    return RedirectToAction("Login", "Account");
+    //}
 
-    [Route("/logout")]
-    public IActionResult RedirectToLogout()
-    {
-        return RedirectToAction("Logout", "Account");
-    }
+    //[Route("/logout")]
+    //public IActionResult RedirectToLogout()
+    //{
+    //    return RedirectToAction("Logout", "Account");
+    //}
 
     // implement Auth0 integration to login users
     [HttpGet("login")]
