@@ -37,6 +37,8 @@ public class RecipeRepo : IRecipeRepo
         try
         {
             
+
+
             var recipe = await _recipeDBContext.Recipes.FindAsync(id);
             
             if (recipe == null)
@@ -103,12 +105,17 @@ public class RecipeRepo : IRecipeRepo
         throw new NotImplementedException();
     }
 
-    public async Task<Recipe?> UpdateRecipeAsync(int id, Recipe recipe)
+    public async Task<Recipe?> UpdateRecipeAsync(int id, Recipe recipe, string role)
     {
         try
         {
             var myRecipe = await _recipeDBContext.Recipes.FindAsync(id);
-            if (myRecipe == null || myRecipe.CreatedBy != recipe.CreatedBy)
+
+            if (recipe == null)
+            {
+                return null;
+            }
+            else if (myRecipe.CreatedBy != recipe.CreatedBy && role != "Admin")
             {
                 return null;
             }
