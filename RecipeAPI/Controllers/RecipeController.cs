@@ -62,6 +62,8 @@ namespace RecipeAPI.Controllers
         {
             try
             {
+
+                string? authHeader = HttpContext.Request.Headers["Authorization"];
                 var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
                 var recipes = await _recipeRepo.GetUserRecipesAsync(userEmail);
                 return Ok(recipes);
@@ -114,7 +116,42 @@ namespace RecipeAPI.Controllers
                     Ingredients = recipe.Ingredients,
                     Directions = recipe.Directions
                 };
-                var updatedRecipe = await _recipeRepo.UpdateRecipeAsync(id, myRecipe);
+                var updatedRecipe = await _recipeRepo.UpdateRecipeAsync(id, myRecipe, "notAdmin");
+                if (updatedRecipe == null)
+                {
+                    return NotFound();
+                }
+                return CreatedAtAction(nameof(GetRecipe), new { updatedRecipe.id }, updatedRecipe);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                                               "Error updating the database");
+            }
+        }
+
+        [HttpPut("admin/{id}")]
+        public async Task<ActionResult<Recipe>> UpdateRecipeAdmin(int id, RecipeForCreation recipe)
+        {
+            try
+            {
+
+                var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
+
+                if (!await isAdmin(userEmail))
+                {
+                    return BadRequest();
+                }
+
+                var myRecipe = new Recipe
+                {
+                    CreatedBy = userEmail,
+                    Title = recipe.Title,
+                    Description = recipe.Description,
+                    Ingredients = recipe.Ingredients,
+                    Directions = recipe.Directions
+                };
+                var updatedRecipe = await _recipeRepo.UpdateRecipeAsync(id, myRecipe, "Admin");
                 if (updatedRecipe == null)
                 {
                     return NotFound();
@@ -150,12 +187,15 @@ namespace RecipeAPI.Controllers
 
         [HttpDelete]
         [Route("admin/{id}")]
+        //[Authorize("delete:recipe")]
         public async Task<ActionResult<Recipe>> DeleteRecipeAdmin(int id)
         {
             try
             {
+
                 var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value;
-                if (userEmail != _config.GetValue<string>("Admins"))
+                
+                if (!await isAdmin(userEmail))
                 {
                     return BadRequest();
                 }
@@ -170,6 +210,40 @@ namespace RecipeAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                                                "Error deleting recipe from the database");
+            }
+        }
+
+        private async Task<bool> isAdmin(string email)
+        {
+
+            try
+            {
+                string? token = _config.GetValue<string>("Token");
+                var client = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://dev-etardgth2vfz55s5.us.auth0.com/api/v2/roles/rol_6YcDTKO2J2eFi7EE/users");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Authorization", "Bearer " + token);
+                var response = await client.SendAsync(request);
+                var admins = await response.Content.ReadFromJsonAsync<List<Admin>>();
+
+                if (admins == null )
+                {
+                    return false;
+                }
+
+                foreach (var item in admins)
+                {
+                    if (item.email == email)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
             }
         }
     }
