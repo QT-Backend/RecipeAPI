@@ -1,0 +1,24 @@
+﻿@page "/"
+@inject IHttpClientFactory _httpClientFactory;
+
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer>
+    <MudDataGrid></MudDataGrid>
+</MudContainer>
+
+
+@code{
+    protected override Task OnInitializedAsync() 
+    {
+        var _httpClient = _httpClientFactory.CreateClient();
+        var request = new HttpRequestMessage()
+        {
+            RequestUri = new Uri("http://localhost:5208/recipes"),
+            Method = HttpMethod.Get,
+        };
+        var response = _httpClient.SendAsync(request).Result;
+    }
+}
+
